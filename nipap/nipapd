@@ -123,9 +123,6 @@ if __name__ == '__main__':
         import nipap.daemon
         ret = nipap.daemon.createDaemon()
 
-    # init our XML-RPC daemon
-    from nipap.flask_xmlrpc import app as nipapxml
-
     # pid file handling
     if cfg.get('nipapd', 'pid_file') and not options.no_pid_file:
         # need a+ to be able to read PID from file
@@ -144,10 +141,27 @@ if __name__ == '__main__':
         lf.write('%d\n' % os.getpid())
         lf.flush()
 
+    # init our XML-RPC daemon
+    # import Tornado stuff
+    from tornado.netutil import bind_sockets
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    import tornado.process
+    from tornado.ioloop import IOLoop
+    from nipap.flask_xmlrpc import app as nipapxml
 
-    # run XML-RPC daemon
+    # init Tornado and pre-fork
+    sockets = bind_sockets(cfg.get('nipapd', 'port'))
+    # default is to fork as many processes as there are cores
+    tornado.process.fork_processes(None)
+    http_server = HTTPServer(WSGIContainer(nipapxml))
+    http_server.add_sockets(sockets)
+
+    # start Tornado
     try:
-        nipapxml.run(port = cfg.get('nipapd', 'port'))
+        IOLoop.instance().start()
+    except KeyboardInterrupt:
+        sys.exit(0)
     except Exception as exc:
         logger.error(exc)
         sys.exit(1)
