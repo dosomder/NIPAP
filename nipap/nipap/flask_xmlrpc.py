@@ -13,31 +13,20 @@ from nipapconfig import NipapConfig
 from backend import Nipap, NipapError
 import nipap
 
+import time
+
 nip = Nipap()
 
+@handler.register
+def echo(args):
+    if args.get('sleep'):
+        time.sleep(args.get('sleep'))
+    if args.get('message') is not None:
+        return args.get('message')
 
 @handler.register
 def version():
     return nipap.__version__
-
-@handler.register
-def add_vrf(args):
-    """ Add a new VRF.
-
-        Valid keys in the `args`-struct:
-
-        * `auth` [struct]
-            Authentication options passed to the :class:`AuthFactory`.
-        * `attr` [struct]
-            VRF attributes.
-
-        Returns the internal database ID for the VRF.
-    """
-
-    try:
-        return nipap.add_vrf(args.get('auth'), args.get('attr'))
-    except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
 
 
 #
