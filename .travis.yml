@@ -2,7 +2,6 @@ language: python
 python:
   - 2.7
 
-# do the SQL cakewalk
 before_install:
     - echo "deb http://spritelink.github.io/NIPAP/repos/apt stable main extra" | sudo tee /etc/apt/sources.list.d/nipap.list
     - sudo apt-get update -qq
@@ -11,6 +10,7 @@ before_install:
     - echo "set nipapd/startup false" | sudo debconf-communicate
     - sudo dpkg-reconfigure nipapd
     - sudo apt-get install -qq python-pysqlite2 python-twisted-web python-psycopg2 python-ipy python-ldap python-docutils python-tornado python-flask
+    - sudo pypi-install Flask-XML-RPC
 
 # get the python stuff installed
 install:
@@ -27,7 +27,7 @@ script:
     - nosetests xmlrpc.py
     - nosetests nipaptest.py
 
-notifications:
-  irc:
-      channels:
-           - "irc.freenode.org#NIPAP"
+#notifications:
+#  irc:
+#      channels:
+#           - "irc.freenode.org#NIPAP"
