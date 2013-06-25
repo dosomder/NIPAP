@@ -14,7 +14,7 @@ before_install:
 
 # get the python stuff installed
 install:
-    - pip install --use-mirrors psycopg2 ipy twisted python-ldap pysqlite pyasn1 Flask-XML-RPC tornado
+    - pip install --use-mirrors psycopg2 ipy twisted python-ldap pysqlite pyasn1 Flask Flask-XML-RPC tornado
     - sudo make install
     - sudo cp nipap/nipap.conf.dist /etc/nipap/nipap.conf
     - sudo cp nipap/local_auth.db /etc/nipap/
