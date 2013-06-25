@@ -19,6 +19,22 @@ nip = Nipap()
 
 @handler.register
 def echo(args):
+    """ An echo function
+
+        An API test function which simply echoes what is is passed in the
+        'message' element in the args-dict..
+
+        Valid keys in the `args`-struct:
+
+        * `auth` [struct]
+            Authentication options passed to the :class:`AuthFactory`.
+        * `message` [string]
+            String to echo.
+        * `sleep` [integer]
+            Number of seconds to sleep before echoing.
+
+        Returns a string.
+    """
     if args.get('sleep'):
         time.sleep(args.get('sleep'))
     if args.get('message') is not None:
@@ -26,6 +42,10 @@ def echo(args):
 
 @handler.register
 def version():
+    """ Returns nipapd version
+
+        Returns a string.
+    """
     return nipap.__version__
 
 
