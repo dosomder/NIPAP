@@ -69,7 +69,7 @@ def add_vrf(args):
     try:
         return nip.add_vrf(args.get('auth'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -87,7 +87,7 @@ def remove_vrf(args):
     try:
         nip.remove_vrf(args.get('auth'), args.get('vrf'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -107,7 +107,7 @@ def list_vrf(args):
     try:
         return nip.list_vrf(args.get('auth'), args.get('vrf'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -127,7 +127,7 @@ def edit_vrf(args):
     try:
         return nip.edit_vrf(args.get('auth'), args.get('vrf'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -151,7 +151,7 @@ def search_vrf(args):
     try:
         return nip.search_vrf(args.get('auth'), args.get('query'), args.get('search_options') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -177,7 +177,7 @@ def smart_search_vrf(args):
                 args.get('query_string'), args.get('search_options', {}),
                 args.get('extra_query'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 #
@@ -200,7 +200,7 @@ def add_pool(args):
     try:
         return nip.add_pool(args.get('auth'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -218,7 +218,7 @@ def remove_pool(args):
     try:
         nip.remove_pool(args.get('auth'), args.get('pool'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -238,7 +238,7 @@ def list_pool(args):
     try:
         return nip.list_pool(args.get('auth'), args.get('pool'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -258,7 +258,7 @@ def edit_pool(args):
     try:
         return nip.edit_pool(args.get('auth'), args.get('pool'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -282,7 +282,7 @@ def search_pool(args):
     try:
         return nip.search_pool(args.get('auth'), args.get('query'), args.get('search_options') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 @handler.register
@@ -308,7 +308,7 @@ def smart_search_pool(args):
                 args.get('query_string'), args.get('search_options') or {},
                 args.get('extra_query', {}))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 #
@@ -336,7 +336,7 @@ def add_prefix(args):
     try:
         return nip.add_prefix(args.get('auth'), args.get('attr'), args.get('args'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -357,7 +357,7 @@ def list_prefix(args):
     try:
         return nip.list_prefix(args.get('auth'), args.get('prefix') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -378,7 +378,7 @@ def edit_prefix(args):
     try:
         return nip.edit_prefix(args.get('auth'), args.get('prefix'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -397,7 +397,7 @@ def remove_prefix(args):
     try:
         return nip.remove_prefix(args.get('auth'), args.get('prefix'), args.get('recursive'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -422,7 +422,7 @@ def search_prefix(args):
     try:
         return nip.search_prefix(args.get('auth'), args.get('query'), args.get('search_options') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -452,7 +452,7 @@ def smart_search_prefix(args):
                 args.get('query_string'), args.get('search_options') or {},
                 args.get('extra_query'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -472,7 +472,7 @@ def find_free_prefix(args):
     try:
         return nip.find_free_prefix(args.get('auth'), args.get('args'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -496,7 +496,7 @@ def add_asn(args):
     try:
         return nip.add_asn(args.get('auth'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -515,7 +515,7 @@ def remove_asn(args):
     try:
         nip.remove_asn(args.get('auth'), args.get('asn'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -536,7 +536,7 @@ def list_asn(args):
     try:
         return nip.list_asn(args.get('auth'), args.get('asn') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -557,7 +557,7 @@ def edit_asn(args):
     try:
         return nip.edit_asn(args.get('auth'), args.get('asn'), args.get('attr'))
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -582,7 +582,7 @@ def search_asn(args):
     try:
         return nip.search_asn(args.get('auth'), args.get('query'), args.get('search_options') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 
@@ -607,7 +607,7 @@ def smart_search_asn(args):
     try:
         return nip.smart_search_asn(args.get('auth'), args.get('query_string'), args.get('search_options') or {})
     except NipapError, e:
-        return xmlrpclib.Fault(e.error_code, str(e))
+        raise Fault(e.error_code, str(e))
 
 
 if __name__ == '__main__':
