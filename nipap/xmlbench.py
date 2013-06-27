@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
     ad = { 'authoritative_source': 'nipap' }
     args = [{ 'auth': ad, 'message': 'test', 'sleep': 0.1 }]
-    args = [{ 'auth': ad, 'query_string': {} }]
+    args = [{ 'auth': ad, 'query_string': 'foo' }]
     b = Benchmark(concurrent = options.concurrent, total = options.total, url =
             server_url, method = options.method, params = args)
     b.setupReqs()

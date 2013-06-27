@@ -27,7 +27,7 @@ script:
     - nosetests xmlrpc.py
     - nosetests nipaptest.py
 
-#notifications:
-#  irc:
-#      channels:
-#           - "irc.freenode.org#NIPAP"
+notifications:
+  irc:
+      channels:
+           - "irc.freenode.org#NIPAP"
