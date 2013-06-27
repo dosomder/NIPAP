@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import time
+from functools import wraps
 from flask import Flask
+from flask import request, Response
 from flaskext.xmlrpc import XMLRPCHandler, Fault
 
 app = Flask(__name__)
@@ -12,12 +15,92 @@ handler.connect(app, '/XMLRPC')
 from nipapconfig import NipapConfig
 from backend import Nipap, NipapError
 import nipap
+from authlib import AuthFactory, AuthError
 
-import time
 
 nip = Nipap()
 
+def check_auth(username, password, auth_source, auth_options = False):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    af = AuthFactory()
+    try:
+        auth = af.get_auth(username, password, auth_source, auth_options or {})
+    except AuthError, exp:
+        return False
+
+    if not auth.authenticate():
+        return False
+
+    return auth
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+        'Could not verify your access level for that URL.\n'
+        'You have to login with proper credentials', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+
+    def decorated(*args, **kwargs):
+        """
+        """
+
+        # Fetch auth options from args
+        auth_options = {}
+        nipap_args = {}
+
+        # validate function arguments
+        if len(args) == 1:
+            nipap_args = args[0]
+        else:
+            #logger.info("Malformed request: got %d parameters" % len(args))
+            raise Fault(1000, ("NIPAP API functions take exactly 1 argument (%d given)") % len(args))
+
+        if type(nipap_args) != dict:
+            raise Fault(1000, ("Function argument must be XML-RPC struct/Python dict (Python %s given)." %
+                type(nipap_args).__name__ ))
+
+        # fetch auth options
+        try:
+            auth_options = nipap_args['auth']
+            if type(auth_options) is not dict:
+                raise ValueError()
+        except (KeyError, ValueError):
+            raise Fault(1000, ("Missing/invalid authentication options in request."))
+
+        # fetch authoritative source
+        try:
+            auth_source = auth_options['authoritative_source']
+        except KeyError:
+            raise Fault(1000, ("Missing authoritative source in auth options."))
+
+        if not request.authorization:
+            return authenticate()
+
+        # init AuthFacory()
+        af = AuthFactory()
+        auth = af.get_auth(request.authorization.username,
+                request.authorization.password, auth_source, auth_options or {})
+
+        # authenticated?
+        if not auth.authenticate():
+            return authenticate()
+
+        # Replace auth options in API call arguments with auth object
+        new_args = dict(args[0])
+        new_args['auth'] = auth
+
+        return f(*(new_args,), **kwargs)
+
+    return decorated
+
+
 @handler.register
+@requires_auth
 def echo(args):
     """ An echo function
 
@@ -41,6 +124,7 @@ def echo(args):
         return args.get('message')
 
 @handler.register
+@requires_auth
 def version():
     """ Returns nipapd version
 
@@ -53,6 +137,7 @@ def version():
 # VRF FUNCTIONS
 #
 @handler.register
+@requires_auth
 def add_vrf(args):
     """ Add a new VRF.
 
@@ -73,6 +158,7 @@ def add_vrf(args):
 
 
 @handler.register
+@requires_auth
 def remove_vrf(args):
     """ Removes a VRF.
 
@@ -91,6 +177,7 @@ def remove_vrf(args):
 
 
 @handler.register
+@requires_auth
 def list_vrf(args):
     """ List VRFs.
 
@@ -111,6 +198,7 @@ def list_vrf(args):
 
 
 @handler.register
+@requires_auth
 def edit_vrf(args):
     """ Edit a VRF.
 
@@ -131,6 +219,7 @@ def edit_vrf(args):
 
 
 @handler.register
+@requires_auth
 def search_vrf(args):
     """ Search for VRFs.
 
@@ -155,6 +244,7 @@ def search_vrf(args):
 
 
 @handler.register
+@requires_auth
 def smart_search_vrf(args):
     """ Perform a smart search.
 
@@ -184,6 +274,7 @@ def smart_search_vrf(args):
 # POOL FUNCTIONS
 #
 @handler.register
+@requires_auth
 def add_pool(args):
     """ Add a pool.
 
@@ -204,6 +295,7 @@ def add_pool(args):
 
 
 @handler.register
+@requires_auth
 def remove_pool(args):
     """ Remove a pool.
 
@@ -222,6 +314,7 @@ def remove_pool(args):
 
 
 @handler.register
+@requires_auth
 def list_pool(args):
     """ List pools.
 
@@ -242,6 +335,7 @@ def list_pool(args):
 
 
 @handler.register
+@requires_auth
 def edit_pool(args):
     """ Edit pool.
 
@@ -262,6 +356,7 @@ def edit_pool(args):
 
 
 @handler.register
+@requires_auth
 def search_pool(args):
     """ Search for pools.
 
@@ -286,6 +381,7 @@ def search_pool(args):
 
 
 @handler.register
+@requires_auth
 def smart_search_pool(args):
     """ Perform a smart search.
 
@@ -317,6 +413,7 @@ def smart_search_pool(args):
 
 
 @handler.register
+@requires_auth
 def add_prefix(args):
     """ Add a prefix.
 
@@ -341,6 +438,7 @@ def add_prefix(args):
 
 
 @handler.register
+@requires_auth
 def list_prefix(args):
     """ List prefixes.
 
@@ -362,6 +460,7 @@ def list_prefix(args):
 
 
 @handler.register
+@requires_auth
 def edit_prefix(args):
     """ Edit prefix.
 
@@ -383,6 +482,7 @@ def edit_prefix(args):
 
 
 @handler.register
+@requires_auth
 def remove_prefix(args):
     """ Remove a prefix.
 
@@ -402,6 +502,7 @@ def remove_prefix(args):
 
 
 @handler.register
+@requires_auth
 def search_prefix(args):
     """ Search for prefixes.
 
@@ -427,6 +528,7 @@ def search_prefix(args):
 
 
 @handler.register
+@requires_auth
 def smart_search_prefix(args):
     """ Perform a smart search.
 
@@ -457,6 +559,7 @@ def smart_search_prefix(args):
 
 
 @handler.register
+@requires_auth
 def find_free_prefix(args):
     """ Find a free prefix.
 
@@ -480,6 +583,7 @@ def find_free_prefix(args):
 # ASN FUNCTIONS
 #
 @handler.register
+@requires_auth
 def add_asn(args):
     """ Add a new ASN.
 
@@ -501,6 +605,7 @@ def add_asn(args):
 
 
 @handler.register
+@requires_auth
 def remove_asn(args):
     """ Removes an ASN.
 
@@ -520,6 +625,7 @@ def remove_asn(args):
 
 
 @handler.register
+@requires_auth
 def list_asn(args):
     """ List ASNs.
 
@@ -541,6 +647,7 @@ def list_asn(args):
 
 
 @handler.register
+@requires_auth
 def edit_asn(args):
     """ Edit an ASN.
 
@@ -562,6 +669,7 @@ def edit_asn(args):
 
 
 @handler.register
+@requires_auth
 def search_asn(args):
     """ Search ASNs.
 
@@ -587,6 +695,7 @@ def search_asn(args):
 
 
 @handler.register
+@requires_auth
 def smart_search_asn(args):
     """ Perform a smart search among ASNs.
 
