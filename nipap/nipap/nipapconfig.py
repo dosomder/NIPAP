@@ -1,7 +1,10 @@
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 
-class NipapConfig(ConfigParser.SafeConfigParser):
+class NipapConfig(configparser.SafeConfigParser):
     """ Makes configuration data available.
 
         Implemented as a class with a shared state; once an instance has been
@@ -23,13 +26,17 @@ class NipapConfig(ConfigParser.SafeConfigParser):
             # First time - create new instance!
             self._cfg_path = cfg_path
 
-            ConfigParser.ConfigParser.__init__(self, default)
+            import sys
+            if sys.version < '3':
+                configparser.ConfigParser.__init__(self, default)
+            else:
+                configparser.ConfigParser.__init__(self, default, inline_comment_prefixes=(';',))
 
-            self.read_file()
+            self.read_conf()
 
 
 
-    def read_file(self):
+    def read_conf(self):
         """ Read the configuration file
         """
 
