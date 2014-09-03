@@ -68,11 +68,14 @@ import logging
 from datetime import datetime, timedelta
 import hashlib
 
-from nipapconfig import NipapConfig
+from .nipapconfig import NipapConfig
 
 # Used by auth modules
 import sqlite3
-import ldap
+try:
+    import ldap3 as ldap
+except ImportError:
+    import ldap
 import string
 import random
 
