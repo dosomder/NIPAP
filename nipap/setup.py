@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from distutils.core import setup
 import subprocess
 import sys
@@ -14,7 +15,7 @@ def get_data_files():
         subprocess.call(["rst2man", "nipapd.man.rst", "nipapd.8"])
         subprocess.call(["rst2man", "nipap-passwd.man.rst", "nipap-passwd.1"])
     except OSError as exc:
-        print >> sys.stderr, "rst2man failed to run:", str(exc)
+        print("rst2man failed to run:", str(exc), file=sys.stderr)
         sys.exit(1)
 
     files = [
@@ -59,7 +60,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware'
     ]
 )
