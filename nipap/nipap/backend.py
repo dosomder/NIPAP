@@ -164,7 +164,6 @@
     -------
 """
 from functools import wraps
-import exceptions
 import logging
 import psycopg2
 import psycopg2.extras
@@ -173,7 +172,7 @@ import socket
 import re
 import IPy
 
-import authlib
+from . import authlib
 
 
 _operation_map = {
@@ -199,6 +198,10 @@ _operation_map = {
 """ Maps operators in a prefix query to SQL operators.
 """
 
+
+import sys
+if not sys.version < '3':
+    long = int
 
 
 def requires_rw(f):
@@ -273,7 +276,7 @@ class Nipap:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.debug("Initialising NIPAP")
 
-        from nipapconfig import NipapConfig
+        from .nipapconfig import NipapConfig
         self._cfg = NipapConfig()
 
         self._connect_db()
@@ -327,7 +330,7 @@ class Nipap:
         """ Return address-family (4 or 6) for IP or None if invalid address
         """
 
-        parts = unicode(ip).split("/")
+        parts = str(ip).split("/")
         if len(parts) == 1:
             # just an address
             if self._is_ipv4(ip):
@@ -985,7 +988,7 @@ class Nipap:
 
         where, params1 = self._expand_vrf_spec(spec)
         update, params2 = self._sql_expand_update(attr)
-        params = dict(params2.items() + params1.items())
+        params = dict(list(params2.items()) + list(params1.items()))
 
         if len(attr) == 0:
             raise NipapInputError("'attr' must not be empty.")
@@ -1608,7 +1611,7 @@ class Nipap:
 
         where, params1 = self._expand_pool_spec(spec)
         update, params2 = self._sql_expand_update(attr)
-        params = dict(params2.items() + params1.items())
+        params = dict(list(params2.items()) + list(params1.items()))
 
         pools = self.list_pool(auth, spec)
 
@@ -1923,7 +1926,7 @@ class Nipap:
         allowed_keys = [ 'id', 'family', 'type', 'pool_id', 'pool_name',
                 'prefix', 'monitor', 'external_key', 'vrf_id',
                 'vrf_rt', 'vrf_name' ]
-        for key in spec.keys():
+        for key in list(spec.keys()):
             if key not in allowed_keys:
                 raise NipapExtraneousInputError("Key '" + key + "' not allowed in prefix spec.")
 
@@ -2371,7 +2374,7 @@ class Nipap:
         prefixes = self.list_prefix(auth, spec)
         where, params1 = self._expand_prefix_spec(spec.copy())
         update, params2 = self._sql_expand_update(attr)
-        params = dict(params2.items() + params1.items())
+        params = dict(list(params2.items()) + list(params1.items()))
 
         sql = "UPDATE ip_net_plan SET " + update + " WHERE " + where
         sql += " RETURNING id"
@@ -3529,7 +3532,7 @@ class Nipap:
 
         where, params1 = self._expand_asn_spec(asn)
         update, params2 = self._sql_expand_update(attr)
-        params = dict(params2.items() + params1.items())
+        params = dict(list(params2.items()) + list(params1.items()))
 
         sql = "UPDATE ip_net_asn SET " + update + " WHERE " + where
         sql += " RETURNING *"
