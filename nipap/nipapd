@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # vim: et sw=4 sts=4 :
 
+from __future__ import print_function
 import fcntl
 import logging
 import logging.handlers
 import optparse
 import os
 import sys
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 from nipap.nipapconfig import NipapConfig, NipapConfigError
 from nipap.backend import NipapError
@@ -29,7 +33,7 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
     os.setuid(uid)
 
     # Ensure a very conservative umask
-    old_umask = os.umask(077)
+    old_umask = os.umask(0o77)
 
 
 if __name__ == '__main__':
@@ -48,7 +52,7 @@ if __name__ == '__main__':
 
     if options.version:
         import nipap
-        print "nipapd version:", nipap.__version__
+        print("nipapd version:", nipap.__version__)
         sys.exit(0)
 
     # set logging format
@@ -77,9 +81,9 @@ if __name__ == '__main__':
 
     try:
         cfg = NipapConfig(options.config_file, default)
-    except NipapConfigError, exc:
+    except NipapConfigError as exc:
         if options.config_file:
-            print >> sys.stderr, "The specified configuration file ('" + options.config_file + "') does not exist"
+            print("The specified configuration file ('" + options.config_file + "') does not exist", file=sys.stderr)
             sys.exit(1)
         # if no config file is specified, we'll live with our defaults
 
@@ -99,8 +103,8 @@ if __name__ == '__main__':
 
         try:
             cfg.set('nipapd', val.dest, str(eval("options." + val.dest)))
-        except ConfigParser.NoSectionError as exc:
-            print >> sys.stderr, "The configuration file contains errors:", exc
+        except configparser.NoSectionError as exc:
+            print("The configuration file contains errors:", exc, file=sys.stderr)
             sys.exit(1)
 
     # drop privileges
@@ -113,17 +117,17 @@ if __name__ == '__main__':
         try:
             drop_privileges(run_user, run_group)
         except NipapError:
-            print >> sys.stderr, ("nipapd is configured to drop privileges and run as user '%s' and group '%s', \n"
-                        "but was not started as root and can therefore not drop privileges") % (run_user, run_group)
+            print(("nipapd is configured to drop privileges and run as user '%s' and group '%s', \n"
+                        "but was not started as root and can therefore not drop privileges") % (run_user, run_group), file=sys.stderr)
             sys.exit(1)
         except KeyError:
-            print >> sys.stderr, "Could not drop privileges to user '%s' and group '%s'" % (run_user, run_group)
+            print("Could not drop privileges to user '%s' and group '%s'" % (run_user, run_group), file=sys.stderr)
             sys.exit(1)
 
     if options.dbversion:
         from nipap.backend import Nipap
         nip = Nipap()
-        print "nipap db schema:", nip._get_db_version()
+        print("nipap db schema:", nip._get_db_version())
         sys.exit(0)
 
     # pre-start checks
@@ -132,11 +136,11 @@ if __name__ == '__main__':
     try:
         latest = a._latest_db_version()
         if not latest:
-            print >> sys.stderr, "It seems your Sqlite database for local auth is out of date"
-            print >> sys.stderr, "Please run 'nipap-passwd --upgrade-database' to upgrade your database."
+            print("It seems your Sqlite database for local auth is out of date", file=sys.stderr)
+            print("Please run 'nipap-passwd --upgrade-database' to upgrade your database.", file=sys.stderr)
             sys.exit(2)
-    except authlib.AuthSqliteError, e:
-        print >> sys.stderr, "Error checking version of Sqlite database for local auth: %s" % e
+    except authlib.AuthSqliteError as e:
+        print("Error checking version of Sqlite database for local auth: %s" % e, file=sys.stderr)
         sys.exit(1)
     del a
 
@@ -146,7 +150,7 @@ if __name__ == '__main__':
     nip = Nipap()
     current_db_version = nip._get_db_version()
     if current_db_version != nipap.__db_version__:
-        print >> sys.stderr, "NIPAP PostgreSQL database is outdated. Schema version '%s' is required to run but you are using '%s'" % (nipap.__db_version__, current_db_version)
+        print("NIPAP PostgreSQL database is outdated. Schema version '%s' is required to run but you are using '%s'" % (nipap.__db_version__, current_db_version), file=sys.stderr)
         sys.exit(1)
 
 
@@ -158,8 +162,8 @@ if __name__ == '__main__':
     if cfg.get('nipapd', 'pid_file') and not options.no_pid_file:
         # need a+ to be able to read PID from file
         try:
-            lf = open(cfg.get('nipapd', 'pid_file'), 'a+', 0)
-        except IOError, exc:
+            lf = open(cfg.get('nipapd', 'pid_file'), 'a+')
+        except IOError as exc:
             logger.error("Unable to open PID file '" + str(exc.filename) + "': " + str(exc.strerror))
             sys.exit(1)
         try:
