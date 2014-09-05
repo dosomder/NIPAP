@@ -9,13 +9,16 @@ import time
 from functools import wraps
 from flask import Flask
 from flask import request, Response
-from flaskext.xmlrpc import XMLRPCHandler, Fault
+try:
+    from flask.ext.xmlrpc import XMLRPCHandler, Fault
+except ImportError:
+    from flaskext.xmlrpc import XMLRPCHandler, Fault
 from flask.ext.compress import Compress
 
-from nipapconfig import NipapConfig
-from backend import Nipap, NipapError
+from .nipapconfig import NipapConfig
+from .backend import Nipap, NipapError
 import nipap
-from authlib import AuthFactory, AuthError
+from .authlib import AuthFactory, AuthError
 
 
 def setup():
