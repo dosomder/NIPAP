@@ -591,8 +591,8 @@ class SqliteAuth(BaseAuth):
 
         # generate hash
         h = hashlib.sha1()
-        h.update(salt)
-        h.update(password)
+        h.update(salt.encode('utf-8'))
+        h.update(password.encode('utf-8'))
         return h.hexdigest()
 
 
